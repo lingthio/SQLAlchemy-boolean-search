@@ -1,0 +1,9 @@
+# Flask
+Flask==0.10.1
+
+# Flask packages
+Flask-SQLAlchemy==1.0
+
+# Python packages
+pyparsing==2.0.3
+

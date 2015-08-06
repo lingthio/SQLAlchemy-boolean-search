@@ -1,0 +1,14 @@
+Authors
+=======
+
+SQLAlchemy-boolean-search is written and maintained by Ling Thio <ling.thio@gmail.com>
+
+Lead developer
+--------------
+Ling Thio <ling.thio@gmail.com>
+
+Contributors
+------------
+n/a
+
+
