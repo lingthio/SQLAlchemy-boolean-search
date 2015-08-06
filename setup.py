@@ -29,7 +29,7 @@ from setuptools import setup
 
 setup(
     name='SQLAlchemy-boolean-search',
-    version='0.1.0',
+    version='0.1.1',
     url='http://github.com/lingthio/SQLAlchemy-boolean-search',
     license='BSD License',
     author='Ling Thio',
