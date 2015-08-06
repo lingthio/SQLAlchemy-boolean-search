@@ -3,23 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Introduction
-=======
+SQLAlchemy-boolean-search
+========
 SQLAlchemy-boolean-search is a python module that translates a boolean search expression
 into its corresponding SQLAlchemy filter.
 
 Boolean search expressions
-========
+--------
 A boolean search expression looks something like this::
 
     field1=*something* and not (field2==1 or field3<=10.0)
 
 It accepts one or more search criteria along with the boolean operands 'not', 'and', and 'or'.
 
-An invalid boolean search automatically switches back to a string search.
-
 Order of precedence
-========
+--------
 The boolean operands have the following order of precedence:
 
 1. not
@@ -35,7 +33,7 @@ will be interpreted as::
     a=1 or ((not b=2) and c=3)
 
 Search criteria
-========
+--------
 A search criteria must be in the form of: 'name' 'operator' 'value'.
 
 * 'name' must match an existing element field name.
@@ -49,7 +47,7 @@ For element field types that map to a float or an integer, a number comparison w
 For other element field types, a string comparison will be performed. That is: "11" < "2". All string comparisons are case INsensitive.
 
 Wildcard values
-========
+--------
 | The expression 'name==a' performs an **exact match** (notice the double equal signs).
 | It matches 'a' but not 'Xa', 'XaX' or 'aX'.
 
@@ -63,7 +61,7 @@ Wildcard values
 Note that 'name=a' is shorthand for 'name=*a*'.
 
 Example
-========
+--------
 ::
 
     from sqlalchemy_boolean_search import parse_boolean_search
@@ -91,3 +89,7 @@ Example
     # Do something with the result
     for record in records:
         pass
+
+TODOs
+-------
+Proper exception handling with useful information.
