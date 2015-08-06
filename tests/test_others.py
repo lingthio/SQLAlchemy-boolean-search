@@ -3,7 +3,7 @@
 # Authors: Ling Thio <ling.thio@gmail.com>
 
 from __future__ import print_function
-from sqlalchemy_boolean_search import parse_boolean_search
+from sqlalchemy_boolean_search import parse_boolean_search, BooleanSearchException
 from .models import Record
 
 
@@ -34,8 +34,15 @@ def test_others(db):
     for record in records:
         assert record.integer == 1
 
-    # Test float
+    # Test float with float
     expression = parse_boolean_search('float==1.0')
+    records = Record.query.filter(expression.filter(Record)).all()
+    assert len(records) == 1
+    for record in records:
+        assert record.float == 1.0
+
+    # Test float with integer
+    expression = parse_boolean_search('float==1')
     records = Record.query.filter(expression.filter(Record)).all()
     assert len(records) == 1
     for record in records:

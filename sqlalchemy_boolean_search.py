@@ -46,6 +46,10 @@ from pyparsing import ParseException  # explicit export
 from sqlalchemy import func
 from sqlalchemy.sql import or_, and_, not_, sqltypes
 
+# Define a custom exception class
+class BooleanSearchException(Exception):
+    pass
+
 # ***** Utility functions *****
 def get_field(DataModelClass, field_name):
     """ Returns a SQLAlchemy Field from a field name such as 'name' or 'parent.name'.
@@ -86,15 +90,19 @@ class Condition(object):
                     value = float(value)
                     lower_field = field
                     lower_value = value
-                except:                                     # pragma: no cover
-                    pass
+                except:
+                    raise BooleanSearchException(
+                        "Field '%(name)s' expects a float value. Received value '%(value)s' instead."
+                        % dict(name=self.name, value=self.value))
             elif field.type.python_type == int:
                 try:
                     value = int(value)
                     lower_field = field
                     lower_value = value
-                except:                                     # pragma: no cover
-                    pass
+                except:
+                    raise BooleanSearchException(
+                        "Field '%(name)s' expects an integer value. Received value '%(value)s' instead."
+                        % dict(name=self.name, value=self.value))
 
             # Return SQLAlchemy condition based on operator value
             if self.op == '==':
@@ -117,11 +125,10 @@ class Condition(object):
                     condition = field.ilike(value)
                 else:
                     condition = field.ilike('%' + value + '%')
-            else:
-                raise ValueError("Operator '%(operator)s' not supported." % dict(operator=self.op))
         else:
-            raise NameError("Field '%(field_name)s' does not exist."
-                            % dict(field_name=self.name))
+            raise BooleanSearchException(
+                "Table '%(table_name)s' does not have a field named '%(field_name)s'."
+                % dict(table_name=DataModelClass.__tablename__, field_name=self.name))
 
         return condition
 
@@ -187,7 +194,7 @@ condition.setParseAction(Condition)
 
 # Define the expression as a hierarchy of boolean operators
 # with the following precedence: NOT > AND > OR
-expression = pp.operatorPrecedence(condition, [
+expression_parser = pp.operatorPrecedence(condition, [
     (pp.CaselessLiteral("not"), 1, pp.opAssoc.RIGHT, BoolNot),
     (pp.CaselessLiteral("and"), 2, pp.opAssoc.LEFT, BoolAnd),
     (pp.CaselessLiteral("or"), 2, pp.opAssoc.LEFT, BoolOr),
@@ -198,5 +205,11 @@ def parse_boolean_search(boolean_search):
     """ Parses the boolean search expression into a hierarchy of boolean operators.
         Returns a BoolNot or BoolAnd or BoolOr object.
     """
-    return expression.parseString(boolean_search)[0]
+    try:
+        expression = expression_parser.parseString(boolean_search)[0]
+        return expression
+    except ParseException as e:
+        raise BooleanSearchException(
+            "Syntax error at offset %(offset)s."
+            % dict(offset=e.col))
 

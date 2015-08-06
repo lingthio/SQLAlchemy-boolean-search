@@ -1,7 +1,7 @@
 """
 SQLAlchemy-boolean-search
 =========================
-SQLAlchemy-boolean-search translates a boolean search expression such as::
+SQLAlchemy-boolean-search translates a boolean search string such as::
 
     "field1=*something* and not (field2==1 or parent.field3<=10.0)"
 
@@ -11,9 +11,9 @@ into its corresponding SQLAlchemy query filter::
          not_(or_(DataModel.field2.__eq__(2),
                   DataModel.parent.field3.__le__(10.0))))
 
-Hierarchical dotted field names such as 'parent.grandparent.name' are accepted.
+Relationship field names such as 'parent.grandparent.name' are accepted.
 
-The code is stable and enjoys a 98% test coverage.
+The code is stable, is used in production, and enjoys a 100% test coverage.
 
 Documentation
 -------------
