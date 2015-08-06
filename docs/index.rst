@@ -96,6 +96,7 @@ Exceptions
 -------
 SQLAlchemy-boolean-search may raise BooleanSearchException exceptions
 with one of the following error messages:
+
 * Table '<table-name>' does not have a field named '<field-name>'.
 * Syntax error at offset <offset>.
 * Field '<field-name' expects an integer value. Received value '<value>' instead.
