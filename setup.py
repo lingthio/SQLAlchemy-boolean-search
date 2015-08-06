@@ -13,7 +13,7 @@ into its corresponding SQLAlchemy query filter::
 
 Relationship field names such as 'parent.grandparent.name' are accepted.
 
-The code is stable, is used in production, and enjoys a 100% test coverage.
+The code is stable, is used in production, and enjoys a test coverage of 100%.
 
 Documentation
 -------------
