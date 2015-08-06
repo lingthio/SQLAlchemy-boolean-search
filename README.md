@@ -1,9 +1,12 @@
 # SQLAlchemy-boolean-search
-SQLAlchemy-boolean-search translates a boolean search expression such as::
+SQLAlchemy-boolean-search translates a boolean search expression such as:
 
     field1=*something* and not (field2==1 or field3<=10.0)
 
-into its corresponding SQLAlchemy filter.
+into its corresponding SQLAlchemy query filter:
+
+    and_(DataModel.field1.ilike('%something%'),
+         not_(or_(DataModel.field2.__eq__(2), DataModel.field3.__le__(10.0))))
 
 ## Install
 
@@ -31,8 +34,8 @@ into its corresponding SQLAlchemy filter.
 ## Revision History
 n/a
 
-## Contact Information
-Ling Thio - ling.thio [at] gmail.com
+## Authors
+* Ling Thio - ling.thio [at] gmail.com
 
 ## Acknowledgements
 This project would not be possible without the use of the following amazing offerings:
