@@ -1,6 +1,6 @@
 """
 SQLAlchemy-boolean-search
-========
+=========================
 SQLAlchemy-boolean-search translates a boolean search expression such as::
 
     field1=*something* and not (field2==1 or field3<=10.0)
@@ -8,14 +8,14 @@ SQLAlchemy-boolean-search translates a boolean search expression such as::
 into its corresponding SQLAlchemy filter.
 
 Install
---------
+-------
 ::
 
     pip install sqlalchemy-boolean-search
 
 
 Usage example
---------
+-------------
 ::
 
     from sqlalchemy_boolean_search import parse_boolean_search
@@ -32,16 +32,13 @@ Usage example
 
 Documentation
 -------------
-`SQLAlchemy-boolean-search Documentation <http://sqlalchemy-boolean-search.readthedocs.org/>`_
+`SQLAlchemy-boolean-search Documentation <http://sqlalchemy-boolean-search.readthedocs.org/>`_"""
 
-"""
-
-from __future__ import print_function
 from setuptools import setup
 
 setup(
     name='SQLAlchemy-boolean-search',
-    version='0.1',
+    version='0.1.0',
     url='http://github.com/lingthio/SQLAlchemy-boolean-search',
     license='BSD License',
     author='Ling Thio',

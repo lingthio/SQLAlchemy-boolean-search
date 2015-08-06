@@ -1,3 +1,3 @@
-include AUTHORS.txt CHANGES.txt LICENSE.txt README.rst
-recursive-include flask_user *.py *.html *.txt *.cfg *.pot *.mo *.po
+include AUTHORS.txt CHANGES.txt LICENSE.txt README.md
+include sqlalchemy_boolean_search.py
 
