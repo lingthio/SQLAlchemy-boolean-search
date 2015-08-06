@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 from sqlalchemy_boolean_search import parse_boolean_search
-from .conftest import Record
+from .models import Record
 
 
 def add_records(db, records):
@@ -40,6 +40,12 @@ def test_strings(db):
     for record in records:
         assert record.string != 'abc'
 
+    expression = parse_boolean_search('not string==abc')
+    records = Record.query.filter(expression.filter(Record)).all()
+    assert len(records) == 3
+    for record in records:
+        assert record.string != 'abc'
+
     expression = parse_boolean_search('string<xabc')
     records = Record.query.filter(expression.filter(Record)).all()
     assert len(records) == 2
@@ -69,5 +75,17 @@ def test_strings(db):
     assert len(records) == 4
     for record in records:
         assert 'abc' in record.string
+
+    expression = parse_boolean_search('string=*x and string=x*')
+    records = Record.query.filter(expression.filter(Record)).all()
+    assert len(records) == 1
+    for record in records:
+        assert record.string[0:1] == 'x' and record.string[-1:] == 'x'
+
+    expression = parse_boolean_search('string=*x or string=x*')
+    records = Record.query.filter(expression.filter(Record)).all()
+    assert len(records) == 3
+    for record in records:
+        assert record.string[0:1] == 'x' or record.string[-1:] == 'x'
 
     delete_records(db, all_records)

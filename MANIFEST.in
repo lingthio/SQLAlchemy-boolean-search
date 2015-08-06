@@ -1,3 +1,2 @@
-include AUTHORS.txt CHANGES.txt LICENSE.txt README.md
-include sqlalchemy_boolean_search.py
+include sqlalchemy_boolean_search.py AUTHORS.txt CHANGES.txt LICENSE.txt README.md
 

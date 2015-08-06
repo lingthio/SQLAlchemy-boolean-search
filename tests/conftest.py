@@ -8,23 +8,15 @@ import pytest
 from flask_sqlalchemy import SQLAlchemy
 
 
-the_app = Flask(__name__)               # The WSGI compliant web application object
-the_db = SQLAlchemy(the_app)            # Setup Flask-SQLAlchemy
+the_app = Flask(__name__)  # The WSGI compliant web application object
+the_db = SQLAlchemy(the_app)  # Setup Flask-SQLAlchemy
 
 the_app.config.update(
     SECRET_KEY='KeepThisSecret',
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.sqlite',
+    SQLALCHEMY_DATABASE_URI='sqlite:///app.sqlite',
 )
 
-class Record(the_db.Model):
-    __tablename__ = 'records'
-    id = the_db.Column(the_db.Integer, primary_key=True)
-    string = the_db.Column(the_db.String(255), nullable=False, server_default='')
-    unicode = the_db.Column(the_db.Unicode(255), nullable=False, server_default=u'')
-    boolean = the_db.Column(the_db.Boolean(), nullable=False, server_default='0')
-    integer = the_db.Column(the_db.Integer(), nullable=False, server_default='0')
-    float = the_db.Column(the_db.Float(), nullable=False, server_default='0.0')
-
+from . import models
 
 @pytest.fixture(scope='session')
 def app(request):
@@ -42,6 +34,7 @@ def app(request):
 @pytest.fixture(scope='session')
 def db(app, request):
     """Session-wide test database."""
+
     def teardown():
         the_db.drop_all()
 

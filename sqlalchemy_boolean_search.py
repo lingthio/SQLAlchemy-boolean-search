@@ -13,14 +13,11 @@ into its corresponding SQLAlchemy query filter.
 
 Install
 -------
-::
 
     pip install sqlalchemy-boolean-search
 
-
 Usage example
 -------------
-::
 
     from sqlalchemy_boolean_search import parse_boolean_search
 
@@ -36,12 +33,11 @@ Usage example
 
 Documentation
 -------------
-`SQLAlchemy-boolean-search Documentation <http://sqlalchemy-boolean-search.readthedocs.org/>`_
+http://sqlalchemy-boolean-search.readthedocs.org/
 
 Authors
 -------
 * Ling Thio - ling.thio [at] gmail.com
-
 """
 
 from __future__ import print_function
@@ -50,20 +46,38 @@ from pyparsing import ParseException  # explicit export
 from sqlalchemy import func
 from sqlalchemy.sql import or_, and_, not_, sqltypes
 
+# ***** Utility functions *****
+def get_field(DataModelClass, field_name):
+    """ Returns a SQLAlchemy Field from a field name such as 'name' or 'parent.name'.
+        Returns None if no field exists by that field name.
+    """
+    # Handle hierarchical field names such as 'parent.name'
+    if '.' in field_name:
+        relationship_name, field_name = field_name.split('.', 1)
+        relationship = getattr(DataModelClass, relationship_name)
+        return get_field(relationship.property.mapper.entity, field_name)
+
+    # Handle flat field names such as 'name'
+    return getattr(DataModelClass, field_name, None)
 
 # ***** Define the expression element classes *****
 
 class Condition(object):
+    """ Represents a 'name operand value' condition,
+        where operand can be one of: '<', '<=', '=', '==', '!=', '>=', '>'.
+    """
     def __init__(self, data):
         self.name = data[0][0]
         self.op = data[0][1]
         self.value = data[0][2]
 
     def filter(self, DataModelClass):
+        """ Return the condition as a SQLAlchemy query condition
+        """
         condition = None
-        if hasattr(DataModelClass, self.name):
+        field = get_field(DataModelClass, self.name)
+        if field:
             # Prepare field and value
-            field = getattr(DataModelClass, self.name)
             lower_field = func.lower(field)
             value = self.value
             lower_value = func.lower(value)
@@ -72,14 +86,14 @@ class Condition(object):
                     value = float(value)
                     lower_field = field
                     lower_value = value
-                except:
+                except:                                     # pragma: no cover
                     pass
             elif field.type.python_type == int:
                 try:
                     value = int(value)
                     lower_field = field
                     lower_value = value
-                except:
+                except:                                     # pragma: no cover
                     pass
 
             # Return SQLAlchemy condition based on operator value
@@ -116,10 +130,14 @@ class Condition(object):
 
 
 class BoolNot(object):
+    """ Represents the boolean operator NOT
+    """
     def __init__(self, data):
         self.condition = data[0][1]
 
     def filter(self, DataModelClass):
+        """ Return the operator as a SQLAlchemy not_() condition
+        """
         return not_(self.condition.filter(DataModelClass))
 
     def __repr__(self):
@@ -127,10 +145,14 @@ class BoolNot(object):
 
 
 class BoolAnd(object):
+    """ Represents the boolean operator AND
+    """
     def __init__(self, data):
         self.conditions = [condition for condition in data[0] if condition and condition != 'and']
 
     def filter(self, DataModelClass):
+        """ Return the operator as a SQLAlchemy and_() condition
+        """
         conditions = [condition.filter(DataModelClass) for condition in self.conditions]
         return and_(*conditions)  # * converts list to argument sequence
 
@@ -139,10 +161,14 @@ class BoolAnd(object):
 
 
 class BoolOr(object):
+    """ Represents the boolean operator OR
+    """
     def __init__(self, data):
         self.conditions = [condition for condition in data[0] if condition and condition != 'or']
 
     def filter(self, DataModelClass):
+        """ Return the operator as a SQLAlchemy or_() condition
+        """
         conditions = [condition.filter(DataModelClass) for condition in self.conditions]
         return or_(*conditions)  # * converts list to argument sequence
 
@@ -153,14 +179,14 @@ class BoolOr(object):
 
 # Define expression elements
 number = pp.Regex(r"[+-]?\d+(:?\.\d*)?(:?[eE][+-]?\d+)?")
-identifier = pp.Word(pp.alphas + '_', pp.alphanums + '_')
-name = pp.Word(pp.alphas + '_', pp.alphanums + '_')
+name = pp.Word(pp.alphas + '._', pp.alphanums + '._')
 operator = pp.Regex("==|!=|<=|>=|<|>|=")
 value = pp.Word(pp.alphanums + '_.*') | pp.QuotedString('"') | number
 condition = pp.Group(name + operator + value)
 condition.setParseAction(Condition)
 
-# Define the expression
+# Define the expression as a hierarchy of boolean operators
+# with the following precedence: NOT > AND > OR
 expression = pp.operatorPrecedence(condition, [
     (pp.CaselessLiteral("not"), 1, pp.opAssoc.RIGHT, BoolNot),
     (pp.CaselessLiteral("and"), 2, pp.opAssoc.LEFT, BoolAnd),
@@ -169,5 +195,8 @@ expression = pp.operatorPrecedence(condition, [
 
 
 def parse_boolean_search(boolean_search):
+    """ Parses the boolean search expression into a hierarchy of boolean operators.
+        Returns a BoolNot or BoolAnd or BoolOr object.
+    """
     return expression.parseString(boolean_search)[0]
 

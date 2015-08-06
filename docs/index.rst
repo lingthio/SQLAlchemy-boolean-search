@@ -7,12 +7,17 @@ SQLAlchemy-boolean-search
 ========
 SQLAlchemy-boolean-search translates a boolean search expression such as::
 
-    field1=*something* and not (field2==1 or field3<=10.0)
+    field1=*something* and not (field2==1 or parent.field3<=10.0)
 
 into its corresponding SQLAlchemy query filter::
 
     and_(DataModel.field1.ilike('%something%'),
-         not_(or_(DataModel.field2.__eq__(2), DataModel.field3.__le__(10.0))))
+         not_(or_(DataModel.field2.__eq__(2),
+                  DataModel.parent.field3.__le__(10.0))))
+
+Hierarchical dotted field names such as 'parent.grandparent.name' are accepted.
+
+The code is stable and enjoys a 98% test coverage.
 
 Install
 --------
@@ -60,6 +65,8 @@ Search criteria
 A search criteria must be in the form of: 'name' 'operator' 'value'.
 
 * 'name' must match an existing element field name.
+Hierarchical dotted field names such as 'parent.grandparent.name' are accepted
+as long as the 'parent' and 'grandparent' relationships have been defined.
 
 * 'operator' must be one of: '<', '<=', '=', '==', '!=', '>=' or '>'.
 
