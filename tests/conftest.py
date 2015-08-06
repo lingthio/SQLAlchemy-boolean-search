@@ -1,23 +1,33 @@
+# Copyright 2015 SolidBuilds.com. All rights reserved.
+#
+# Authors: Ling Thio <ling.thio@gmail.com>
+
+from flask import Flask
 import os
 import pytest
+from flask_sqlalchemy import SQLAlchemy
 
-from flask_user.tests.tst_app import app as the_app, init_app
-from flask_user.tests.tst_utils import TstClient
+
+the_app = Flask(__name__)               # The WSGI compliant web application object
+the_db = SQLAlchemy(the_app)            # Setup Flask-SQLAlchemy
+
+the_app.config.update(
+    SECRET_KEY='KeepThisSecret',
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.sqlite',
+)
+
+class Record(the_db.Model):
+    __tablename__ = 'records'
+    id = the_db.Column(the_db.Integer, primary_key=True)
+    string = the_db.Column(the_db.String(255), nullable=False, server_default='')
+    unicode = the_db.Column(the_db.Unicode(255), nullable=False, server_default=u'')
+    boolean = the_db.Column(the_db.Boolean(), nullable=False, server_default='0')
+    integer = the_db.Column(the_db.Integer(), nullable=False, server_default='0')
+    float = the_db.Column(the_db.Float(), nullable=False, server_default='0.0')
+
 
 @pytest.fixture(scope='session')
 def app(request):
-    test_config = dict(
-        SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',   # In-memory sqlite DB
-        TESTING=True,            # Propagate exceptions (don't show 500 error page)
-        WTF_CSRF_ENABLED=False,  # Disable CSRF token in Flask-Wtf
-        LOGIN_DISABLED=False,    # Enable @register_required while app.testing=True
-        MAIL_SUPPRESS_SEND=True, # Suppress the sending of emails
-        SERVER_NAME='localhost'  # Enable url_for() without request context
-    )
-
-    # Create app with test settings
-    init_app(the_app, test_config)
-
     # Establish an application context before running the tests.
     ctx = the_app.app_context()
     ctx.push()
@@ -33,12 +43,12 @@ def app(request):
 def db(app, request):
     """Session-wide test database."""
     def teardown():
-        app.db.drop_all()
+        the_db.drop_all()
 
-    app.db.create_all()
+    the_db.create_all()
 
     request.addfinalizer(teardown)
-    return app.db
+    return the_db
 
 
 @pytest.fixture(scope='function')
@@ -60,7 +70,4 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
-@pytest.fixture(scope='session')
-def client(app, db, request):
-    return TstClient(app.test_client(), db)
 

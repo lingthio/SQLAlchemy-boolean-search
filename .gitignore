@@ -37,3 +37,4 @@ coverage.xml
 
 # Temp files
 docs/_build
+tests/app.sqlite
