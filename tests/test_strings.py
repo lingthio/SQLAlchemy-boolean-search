@@ -3,8 +3,8 @@
 # Authors: Ling Thio <ling.thio@gmail.com>
 
 from __future__ import print_function
-from .conftest import Record
 from sqlalchemy_boolean_search import parse_boolean_search
+from .conftest import Record
 
 
 def add_records(db, records):
