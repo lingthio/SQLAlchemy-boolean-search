@@ -94,10 +94,14 @@ Note that 'name=a' is shorthand for 'name=*a*'.
 
 Exceptions
 -------
-SQLAlchemy-boolean-search may raise BooleanSearchException exceptions
-with one of the following error messages:
+SQLAlchemy-boolean-search defines the exception BooleanSearchException.
 
-* Table '<table-name>' does not have a field named '<field-name>'.
-* Syntax error at offset <offset>.
-* Field '<field-name' expects an integer value. Received value '<value>' instead.
-* Field '<field-name' expects a float value. Received value '<value' instead.
+parse_boolean_search() may raise a BooleanSearchException with the following message:
+
+* "Syntax error at offset <offset>."
+
+parsed_expression.filter() may raise a BooleanSearchException with one of the following messages:
+
+* "Table '<table-name>' does not have a field named '<field-name>'."
+* "Field '<field-name>' expects an integer value. Received value '<value>' instead."
+* "Field '<field-name>' expects a float value. Received value '<value' instead."
